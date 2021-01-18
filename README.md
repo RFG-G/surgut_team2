@@ -1,1 +1,2 @@
-"# surgut_team2" 
+# Проект для Я.Лицея
+Flappy Bird на PyGame
