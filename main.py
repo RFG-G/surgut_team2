@@ -8,18 +8,20 @@ pygame.init()
 fps = 60
 fpsClock = pygame.time.Clock()
 
-width, height = 576, 900
+width, height = 376, 700
 screen = pygame.display.set_mode((width, height))
 
 programIcon = pygame.image.load('./favicon.ico')
 pygame.display.set_icon(programIcon)
 
 while True:
-    screen.fill((255, 255, 255))
-
     # FPS
     fps_text = pygame.font.Font(None, 48).render('FPS:' + str(int(fpsClock.get_fps())), True, (1, 1, 1))
     screen.blit(fps_text, (10, 25))
+
+    bg = pygame.image.load("sprites/background-day.png")
+    bg = pygame.transform.scale(bg, (width, height))
+    screen.blit(bg, (0, 0))
 
     for event in pygame.event.get():
         if event.type == QUIT:
