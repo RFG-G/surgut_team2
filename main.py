@@ -11,6 +11,9 @@ fpsClock = pygame.time.Clock()
 width, height = 576, 900
 screen = pygame.display.set_mode((width, height))
 
+programIcon = pygame.image.load('./favicon.ico')
+pygame.display.set_icon(programIcon)
+
 while True:
     screen.fill((255, 255, 255))
 
