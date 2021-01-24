@@ -22,7 +22,7 @@ while True:
     bg = pygame.image.load("sprites/background-day.png")
     bg = pygame.transform.scale(bg, (width, height))
     screen.blit(bg, (0, 0))
-
+    print('здесь будет фича')
     for event in pygame.event.get():
         if event.type == QUIT:
             pygame.quit()
