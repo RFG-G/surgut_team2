@@ -1,7 +1,6 @@
 import sys
 
 import pygame
-from pygame.locals import *
 
 pygame.init()
 
@@ -11,23 +10,23 @@ fpsClock = pygame.time.Clock()
 width, height = 376, 700
 screen = pygame.display.set_mode((width, height))
 
-programIcon = pygame.image.load('./favicon.ico')
+programIcon = pygame.image.load('./favicon.ico')  # Изменяем иконку
 pygame.display.set_icon(programIcon)
-
+button = pygame.image.load('sprites/i.png')  # Кнопка начала игры
+button = pygame.transform.scale(button, (120, 60))
+buttonCount = True
 while True:
-    # FPS
-    fps_text = pygame.font.Font(None, 48).render('FPS:' + str(int(fpsClock.get_fps())), True, (1, 1, 1))
-    screen.blit(fps_text, (10, 25))
-
-    bg = pygame.image.load("sprites/background-day.png")
+    bg = pygame.image.load("sprites/background-day.png")  # Меняем фон
     bg = pygame.transform.scale(bg, (width, height))
     screen.blit(bg, (0, 0))
-
+    if buttonCount:
+        screen.blit(button, (376 // 2 - 60, 700 // 2 - 30))
     for event in pygame.event.get():
-        if event.type == QUIT:
+        if event.type == pygame.QUIT:
             pygame.quit()
-            print('closed')
             sys.exit()
-
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if buttonCount and 376 // 2 - 60 < event.pos[0] < 376 // 2 + 60 and 700 // 2 - 30 < event.pos[1] < 700 // 2 + 30:
+                buttonCount = False
     pygame.display.flip()
     fpsClock.tick(fps)
