@@ -3,8 +3,12 @@ import sys
 import pygame
 
 pygame.init()
-my_joystick = pygame.joystick.Joystick(0)
-my_joystick.init()
+try:
+    my_joystick = pygame.joystick.Joystick(0)
+    my_joystick.init()
+except pygame.error:
+    print('Джойстик не был подключен')
+
 
 fps = 120
 fpsClock = pygame.time.Clock()
