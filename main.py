@@ -50,7 +50,7 @@ class FlappyBird:
         self.birdY -= 0.03 * self.center
         self.center -= 2
         self.fillBackground()  # Закрашиваем фон
-        self.screen.blit(self.bird, (self.birdX, self.birdY))   # отрисовываем птицу
+        self.screen.blit(self.bird, (self.birdX, self.birdY))  # отрисовываем птицу
 
     def death(self):
         self.buttonPlay = True
