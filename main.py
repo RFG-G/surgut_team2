@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 import sys
 import pygame
+import sounddevice as sd
+import numpy as np
+from threading import Thread
+
 
 pygame.init()
 try:
@@ -10,13 +14,13 @@ except pygame.error:
     print('Джойстик не был подключен')
 
 
-fps = 120
+fps = 1200
 fpsClock = pygame.time.Clock()
 
 width, height = 376, 700
 pygame.display.set_mode((width, height), 0)
 programIcon = pygame.image.load('./favicon.ico')  # Изменяем иконку
-pygame.display.set_icon(programIcon)
+pygame.display.set_icon(programIcon)  # Смена иконки окна игры
 button = pygame.image.load('sprites/i.png')  # Кнопка начала игры
 button = pygame.transform.scale(button, (120, 60))
 bg = pygame.image.load("sprites/background-day.png")  # Меняем фон
@@ -25,9 +29,10 @@ bg = pygame.transform.scale(bg, (width, height))
 
 class FlappyBird:
     def __init__(self):
+        self.volume = 0
         self.screen = pygame.display.set_mode((width, height))  # Создаем экран
         self.selectedBird = 0  # Выбранная птица
-        self.buttonPlay = True  # Отображается кнопка или нет
+        self.buttonPlay = True  # Нажата кнопка или нет
         self.fillBackground()
         self.bird = pygame.image.load('sprites/yellowbird-midflap.png')  # Кнопка начала игры
         self.birdX = width // 2 - 34 // 2
@@ -47,6 +52,7 @@ class FlappyBird:
             self.screen.blit(self.bird, (self.birdX, self.birdY))
 
     def update(self):
+        print(self.volume)
         self.birdY -= 0.03 * self.center
         self.center -= 2
         self.fillBackground()  # Закрашиваем фон
@@ -58,8 +64,23 @@ class FlappyBird:
     def fillBackground(self):
         self.screen.blit(bg, (0, 0))  # Рисуем фон
 
-
 game = FlappyBird()
+
+
+def print_sound(indata, outdata, frames, time, status):
+    volume_norm = np.linalg.norm(indata) * 10
+    game.volume = int(volume_norm)
+
+
+def s(*args):
+    with sd.Stream(callback=print_sound):
+        sd.sleep(-1)
+
+
+s = Thread(target=s)
+s.start()
+
+
 while True:
     for event in pygame.event.get():
         keys = pygame.key.get_pressed()
@@ -73,4 +94,4 @@ while True:
     if not game.buttonPlay:
         game.update()
     pygame.display.flip()
-    fpsClock.tick(fps)
+    fpsClock.tick(-1)
