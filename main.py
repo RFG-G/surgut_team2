@@ -13,8 +13,6 @@ try:
 except pygame.error:
     print('Джойстик не был подключен')
 
-
-fps = 1200
 fpsClock = pygame.time.Clock()
 
 width, height = 376, 700
@@ -51,23 +49,23 @@ class FlappyBird:
             self.update()
             self.screen.blit(self.bird, (self.birdX, self.birdY))
 
-    def update(self):
-        print(self.volume)
+    def update(self):  # Падение птицы
         self.birdY -= 0.03 * self.center
         self.center -= 2
-        self.fillBackground()  # Закрашиваем фон
+        self.fillBackground()
         self.screen.blit(self.bird, (self.birdX, self.birdY))  # отрисовываем птицу
 
-    def death(self):
+    def fail(self):  # Проигрыш
         self.buttonPlay = True
 
-    def fillBackground(self):
-        self.screen.blit(bg, (0, 0))  # Рисуем фон
+    def fillBackground(self):  # Рисуем фон
+        self.screen.blit(bg, (0, 0))
+
 
 game = FlappyBird()
 
 
-def print_sound(indata, outdata, frames, time, status):
+def print_sound(indata, *args):
     volume_norm = np.linalg.norm(indata) * 10
     game.volume = int(volume_norm)
 
@@ -87,11 +85,14 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
         if event.type == pygame.MOUSEBUTTONDOWN or keys[pygame.K_SPACE] or event.type == pygame.JOYBUTTONUP:
+            # Срабатывает при нажатии на кнопку или при на кнопки на джойстике
             if game.buttonPlay:
                 game.buttons()
             elif not game.buttonPlay:
                 game.center += 80
+        if game.volume > 13:
+            game.center += 20
     if not game.buttonPlay:
         game.update()
     pygame.display.flip()
-    fpsClock.tick(-1)
+    fpsClock.tick(60)
