@@ -91,7 +91,8 @@ while True:
             elif not game.buttonPlay:
                 game.center += 80
         if game.volume > 13:
-            game.center += 20
+            if not game.buttonPlay:
+                game.center += 25
     if not game.buttonPlay:
         game.update()
     pygame.display.flip()
