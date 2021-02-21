@@ -25,7 +25,7 @@ bg = pygame.image.load("sprites/background-day.png")  # Меняем фон
 bg = pygame.transform.scale(bg, (width, height))
 skins = [['yellowbird-downflap.png', 'yellowbird-midflap.png', 'yellowbird-upflap.png'],
          ['redbird-downflap.png', 'redbird-midflap.png', 'redbird-upflap.png'],
-         ['']]
+         ['bluebird-downflap.png', 'bluebird-midflap.png', 'bluebird-upflap.png']]
 
 
 class FlappyBird:
