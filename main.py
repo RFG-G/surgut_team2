@@ -23,6 +23,9 @@ button = pygame.image.load('sprites/i.png')  # Кнопка начала игр�
 button = pygame.transform.scale(button, (120, 60))
 bg = pygame.image.load("sprites/background-day.png")  # Меняем фон
 bg = pygame.transform.scale(bg, (width, height))
+skins = [['yellowbird-downflap.png', 'yellowbird-midflap.png', 'yellowbird-upflap.png'],
+         ['redbird-downflap.png', 'redbird-midflap.png', 'redbird-upflap.png'],
+         ['']]
 
 
 class FlappyBird:
@@ -68,6 +71,7 @@ game = FlappyBird()
 def print_sound(indata, *args):
     volume_norm = np.linalg.norm(indata) * 10
     game.volume = int(volume_norm)
+    print(game.volume)
 
 
 def s(*args):
@@ -90,10 +94,10 @@ while True:
                 game.buttons()
             elif not game.buttonPlay:
                 game.center += 80
-        if game.volume > 13:
-            if not game.buttonPlay:
-                game.center += 25
     if not game.buttonPlay:
         game.update()
+        if game.volume > 15:
+            if not game.buttonPlay:
+                game.center += 5
     pygame.display.flip()
     fpsClock.tick(60)
