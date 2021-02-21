@@ -32,10 +32,11 @@ class FlappyBird:
     def __init__(self):
         self.volume = 0
         self.screen = pygame.display.set_mode((width, height))  # Создаем экран
-        self.selectedBird = 0  # Выбранная птица
+        self.selectedBird = 0  # номер списка выбранной птицы
+        self.position = 1
         self.buttonPlay = True  # Нажата кнопка или нет
         self.fillBackground()
-        self.bird = pygame.image.load('sprites/yellowbird-midflap.png')  # Кнопка начала игры
+        self.load_bird()
         self.birdX = width // 2 - 34 // 2
         self.birdY = height // 2 - 34 // 2
         self.click = 0  # Счетчик нажатий
@@ -54,7 +55,14 @@ class FlappyBird:
 
     def update(self):  # Падение птицы
         self.birdY -= 0.03 * self.center
-        self.center -= 2
+        if self.center > 0:
+            self.position = 2
+        elif self.center == 0:
+            self.position = 1
+        elif self.center < 0:
+            self.position = 0
+        self.load_bird()
+        self.center -= 2  # Чтобы птица уходила вниз
         self.fillBackground()
         self.screen.blit(self.bird, (self.birdX, self.birdY))  # отрисовываем птицу
 
@@ -64,6 +72,8 @@ class FlappyBird:
     def fillBackground(self):  # Рисуем фон
         self.screen.blit(bg, (0, 0))
 
+    def load_bird(self):
+        self.bird = pygame.image.load('sprites/' + str(skins[self.selectedBird][self.position]))  # Кнопка начала игры
 
 game = FlappyBird()
 
@@ -71,7 +81,7 @@ game = FlappyBird()
 def print_sound(indata, *args):
     volume_norm = np.linalg.norm(indata) * 10
     game.volume = int(volume_norm)
-    print(game.volume)
+    # print(game.volume)
 
 
 def s(*args):
