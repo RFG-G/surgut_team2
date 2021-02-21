@@ -3,6 +3,7 @@ import sys
 import pygame
 import sounddevice as sd
 import numpy as np
+import random
 from threading import Thread
 
 
@@ -26,6 +27,7 @@ bg = pygame.transform.scale(bg, (width, height))
 skins = [['yellowbird-downflap.png', 'yellowbird-midflap.png', 'yellowbird-upflap.png'],
          ['redbird-downflap.png', 'redbird-midflap.png', 'redbird-upflap.png'],
          ['bluebird-downflap.png', 'bluebird-midflap.png', 'bluebird-upflap.png']]
+pipes = ['pipe-green.png', 'pipe-red.png']
 
 
 class FlappyBird:
@@ -33,10 +35,13 @@ class FlappyBird:
         self.volume = 0
         self.screen = pygame.display.set_mode((width, height))  # Создаем экран
         self.selectedBird = 0  # номер списка выбранной птицы
+        self.selectedPipe = 0
         self.position = 1
         self.buttonPlay = True  # Нажата кнопка или нет
         self.fillBackground()
         self.load_bird()
+        self.pipeXY()
+        self.load_pipe()
         self.birdX = width // 2 - 34 // 2
         self.birdY = height // 2 - 34 // 2
         self.click = 0  # Счетчик нажатий
@@ -51,7 +56,9 @@ class FlappyBird:
         if not self.buttonPlay:
             self.fillBackground()
             self.update()
-            self.screen.blit(self.bird, (self.birdX, self.birdY))
+            s = pygame.transform.rotate(self.bird, 180)
+            self.screen.blit(s, (self.birdX, self.birdY))
+            self.screen.blit(self.pipe, (self.pipeX, self.pipeYU))
 
     def update(self):  # Падение птицы
         self.birdY -= 0.03 * self.center
@@ -64,7 +71,11 @@ class FlappyBird:
         self.load_bird()
         self.center -= 2  # Чтобы птица уходила вниз
         self.fillBackground()
+        self.gameplay_pipe()
         self.screen.blit(self.bird, (self.birdX, self.birdY))  # отрисовываем птицу
+        s = pygame.transform.rotate(self.pipe, 180)
+        self.screen.blit(s, (self.pipeX, self.pipeYU))  # отрисовываем верхнюю трубу
+        self.screen.blit(self.pipe, (self.pipeX, self.pipeYD))  # отрисовываем нижнюю трубу
 
     def fail(self):  # Проигрыш
         self.buttonPlay = True
@@ -74,6 +85,22 @@ class FlappyBird:
 
     def load_bird(self):
         self.bird = pygame.image.load('sprites/' + str(skins[self.selectedBird][self.position]))  # Кнопка начала игры
+
+    def load_pipe(self):
+        if self.pipeX < 26:
+            self.pipeXY()
+        self.pipe = pygame.image.load('sprites/' + str(pipes[self.selectedPipe]))
+
+    def pipeXY(self):
+        self.pipeX = random.randint(400, 550)
+        self.pipeYU = random.randint(-670, 30)
+        self.pipeYD = self.pipeYU + 850
+
+    def gameplay_pipe(self):
+        self.pipeX -= 1
+        if self.pipeX < -60:
+            self.pipeXY()
+
 
 game = FlappyBird()
 
