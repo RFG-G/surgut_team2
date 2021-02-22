@@ -16,6 +16,7 @@ except pygame.error:
     print('Джойстик не был подключен')
 
 fpsClock = pygame.time.Clock()
+score_surf = pygame.Surface((100, 50))
 
 width, height = 376, 700
 pygame.display.set_mode((width, height), 0)
@@ -29,12 +30,13 @@ skins = [['yellowbird-downflap.png', 'yellowbird-midflap.png', 'yellowbird-upfla
          ['redbird-downflap.png', 'redbird-midflap.png', 'redbird-upflap.png'],
          ['bluebird-downflap.png', 'bluebird-midflap.png', 'bluebird-upflap.png']]
 pipes = ['pipe-green.png', 'pipe-red.png']
-
+score = ['0.png', '1.png', '2.png', '3.png', '4.png', '5.png', '6.png', '7.png', '8.png', '9.png']
 
 
 class FlappyBird:
     def __init__(self):
         self.sound_controller = sound_controller()
+        self.score_count = 0
         self.volume = 0
         self.screen = pygame.display.set_mode((width, height))  # Создаем экран
         self.selectedBird = 0  # Номер списка выбранной птицы
@@ -82,14 +84,16 @@ class FlappyBird:
                 or (self.pipeX - 19 < self.birdX + 17 < self.pipeX + 26 and self.pipeYU < self.birdY < self.pipeYU + 750) \
                 or (self.pipeX - 19 < self.birdX + 17 < self.pipeX + 26 and self.pipeYD < self.birdY + 24 < self.pipeYD + 750) \
                 or (self.pipeX - 19 < self.birdX < self.pipeX + 26 and self.pipeYU < self.birdY < self.pipeYU + 750) \
-                or (self.pipeX - 19 < self.birdX < self.pipeX + 26 and self.pipeYD < self.birdY + 24 < self.pipeYD + 750):
+                or (self.pipeX - 19 < self.birdX < self.pipeX + 26 and self.pipeYD < self.birdY < self.pipeYD + 750):
             self.sound_controller.fail()
             self.fail()
+        self.score()
 
     def fail(self):  # Проигрыш
         self.buttonPlay = True
         self.reset_game()
         self.load_button()
+        self.score_count = 0
         self.speed = 1
         self.center = 0
         self.pipeXY()
@@ -113,6 +117,7 @@ class FlappyBird:
     def gameplay_pipe(self):
         self.pipeX -= 1 * self.speed
         if self.pipeX < -60:
+            self.score_count += 1
             self.speed += 0.3
             self.pipeXY()
 
@@ -124,6 +129,14 @@ class FlappyBird:
             self.screen.blit(button, (width // 2 - 60, height // 2 - 30))
             self.birdX = width // 2 - 34 // 2
             self.birdY = height // 2 - 34 // 2
+
+    def score(self):
+        self.x = 0
+        for i in range(len(str(self.score_count))):
+            score_image = pygame.image.load('sprites/' + score[int(str(self.score_count)[i])])
+            self.x += score_image.get_size()[0]
+            self.screen.blit(score_image, (self.x, 0))
+
 
 
 game = FlappyBird()
