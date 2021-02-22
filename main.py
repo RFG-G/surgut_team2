@@ -28,15 +28,17 @@ skins = [['yellowbird-downflap.png', 'yellowbird-midflap.png', 'yellowbird-upfla
          ['redbird-downflap.png', 'redbird-midflap.png', 'redbird-upflap.png'],
          ['bluebird-downflap.png', 'bluebird-midflap.png', 'bluebird-upflap.png']]
 pipes = ['pipe-green.png', 'pipe-red.png']
+background = ['background2.mp3', 'background2.mp3', 'background3.mp3', 'background4.mp3', 'background5.mp3']
 
 
 class FlappyBird:
     def __init__(self):
         self.volume = 0
         self.screen = pygame.display.set_mode((width, height))  # Создаем экран
-        self.selectedBird = 0  # номер списка выбранной птицы
-        self.selectedPipe = 0
-        self.position = 1
+        self.selectedBird = 0  # Номер списка выбранной птицы
+        self.selectedPipe = 0  # Номер списка идущей трубы
+        self.position = 1  # Позиция анимации птицы
+        self.speed = 1  # Множитель скорости
         self.buttonPlay = True  # Нажата кнопка или нет
         self.fillBackground()
         self.load_bird()
@@ -54,6 +56,7 @@ class FlappyBird:
             1] < 700 // 2 + 30:
             self.buttonPlay = False
         if not self.buttonPlay:
+            self.sounds()
             self.fillBackground()
             self.update()
             s = pygame.transform.rotate(self.bird, 180)
@@ -87,21 +90,23 @@ class FlappyBird:
         self.bird = pygame.image.load('sprites/' + str(skins[self.selectedBird][self.position]))  # Кнопка начала игры
 
     def load_pipe(self):
-        if self.pipeX < 26:
-            self.pipeXY()
         self.pipe = pygame.image.load('sprites/' + str(pipes[self.selectedPipe]))
 
     def pipeXY(self):
         self.pipeX = random.randint(400, 550)
-        self.pipeYU = random.randint(-670, 30)
+        self.pipeYU = random.randint(-670, -150)
         self.pipeYD = self.pipeYU + 850
 
     def gameplay_pipe(self):
-        self.pipeX -= 1
+        self.pipeX -= 1 * self.speed
         if self.pipeX < -60:
+            self.speed += 0.3
             self.pipeXY()
 
-
+    def sounds(self):
+        sound_position = random.randint(0, 4)
+        sound = pygame.mixer.Sound('audio/background/' + str(background[sound_position]))
+        sound.play()
 game = FlappyBird()
 
 
