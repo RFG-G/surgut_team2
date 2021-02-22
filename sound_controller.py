@@ -18,3 +18,6 @@ class sound_controller:
 
     def swoosh(self):
         self.swoosh_audio.play()
+
+    def stop_all(self):
+        pygame.mixer.stop()

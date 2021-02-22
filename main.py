@@ -46,12 +46,9 @@ class FlappyBird:
         self.load_bird()
         self.pipeXY()
         self.load_pipe()
-        self.birdX = width // 2 - 34 // 2
-        self.birdY = height // 2 - 34 // 2
         self.click = 0  # Счетчик нажатий
         self.center = -1
-        if self.buttonPlay:
-            self.screen.blit(button, (width // 2 - 60, height // 2 - 30))
+        self.load_button()
 
     def buttons(self):  # Нажатия которые производят в игре
         if self.buttonPlay and 376 // 2 - 60 < event.pos[0] < 376 // 2 + 60 and 700 // 2 - 30 < event.pos[
@@ -66,14 +63,6 @@ class FlappyBird:
             self.screen.blit(self.pipe, (self.pipeX, self.pipeYU))
 
     def update(self):  # Обновление экрана
-        if self.birdY < 0 or self.birdY > 670 \
-                or (self.pipeX - 19 < self.birdX + 17 < self.pipeX + 26 and self.pipeYU < self.birdY < self.pipeYU + 750) \
-                or (self.pipeX - 19 < self.birdX + 17 < self.pipeX + 26 and self.pipeYD < self.birdY + 24 < self.pipeYD + 750) \
-                or (self.pipeX - 19 < self.birdX < self.pipeX + 26 and self.pipeYU < self.birdY < self.pipeYU + 750) \
-                or (self.pipeX - 19 < self.birdX < self.pipeX + 26 and self.pipeYD < self.birdY + 24 < self.pipeYD + 750):
-            self.sound_controller.fail()
-            self.fail()
-
         self.birdY -= 0.03 * self.center
         if self.center > 0:
             self.position = 2
@@ -89,9 +78,23 @@ class FlappyBird:
         s = pygame.transform.rotate(self.pipe, 180)
         self.screen.blit(s, (self.pipeX, self.pipeYU))  # отрисовываем верхнюю трубу
         self.screen.blit(self.pipe, (self.pipeX, self.pipeYD))  # отрисовываем нижнюю трубу
+        if self.birdY < 0 or self.birdY > 670 \
+                or (self.pipeX - 19 < self.birdX + 17 < self.pipeX + 26 and self.pipeYU < self.birdY < self.pipeYU + 750) \
+                or (self.pipeX - 19 < self.birdX + 17 < self.pipeX + 26 and self.pipeYD < self.birdY + 24 < self.pipeYD + 750) \
+                or (self.pipeX - 19 < self.birdX < self.pipeX + 26 and self.pipeYU < self.birdY < self.pipeYU + 750) \
+                or (self.pipeX - 19 < self.birdX < self.pipeX + 26 and self.pipeYD < self.birdY + 24 < self.pipeYD + 750):
+            self.sound_controller.fail()
+            self.fail()
 
     def fail(self):  # Проигрыш
         self.buttonPlay = True
+        self.reset_game()
+        self.load_button()
+        self.speed = 1
+        self.center = 0
+        self.pipeXY()
+        sound_controller.stop_all()
+        sound_controller.fail()
 
     def fillBackground(self):  # Рисуем фон
         self.screen.blit(bg, (0, 0))
@@ -112,6 +115,15 @@ class FlappyBird:
         if self.pipeX < -60:
             self.speed += 0.3
             self.pipeXY()
+
+    def reset_game(self):
+        self.fillBackground()
+
+    def load_button(self):
+        if self.buttonPlay:
+            self.screen.blit(button, (width // 2 - 60, height // 2 - 30))
+            self.birdX = width // 2 - 34 // 2
+            self.birdY = height // 2 - 34 // 2
 
 
 game = FlappyBird()
@@ -150,5 +162,5 @@ while True:
         if game.volume > 20:
             if not game.buttonPlay:
                 game.center += 5
-    pygame.display.flip()
     fpsClock.tick(120)
+    pygame.display.flip()
