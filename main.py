@@ -60,8 +60,7 @@ class FlappyBird:
             self.sound_controller.play()
             self.fillBackground()
             self.update()
-            s = pygame.transform.rotate(self.bird, 180)
-            self.screen.blit(s, (self.birdX, self.birdY))
+            self.screen.blit(pygame.transform.rotate(self.bird, 180), (self.birdX, self.birdY))
             self.screen.blit(self.pipe, (self.pipeX, self.pipeYU))
 
     def update(self):  # Обновление экрана
@@ -77,8 +76,7 @@ class FlappyBird:
         self.fillBackground()
         self.gameplay_pipe()
         self.screen.blit(self.bird, (self.birdX, self.birdY))  # отрисовываем птицу
-        s = pygame.transform.rotate(self.pipe, 180)
-        self.screen.blit(s, (self.pipeX, self.pipeYU))  # отрисовываем верхнюю трубу
+        self.screen.blit(pygame.transform.rotate(self.pipe, 180), (self.pipeX, self.pipeYU))  # отрисовываем верхнюю трубу
         self.screen.blit(self.pipe, (self.pipeX, self.pipeYD))  # отрисовываем нижнюю трубу
         if self.birdY < 0 or self.birdY > 670 \
                 or (self.pipeX - 19 < self.birdX + 17 < self.pipeX + 26 and self.pipeYU < self.birdY < self.pipeYU + 750) \
@@ -93,10 +91,12 @@ class FlappyBird:
         self.buttonPlay = True
         self.reset_game()
         self.load_button()
-        self.score_count = 0
+        self.gameover = pygame.image.load('sprites/gameover.png')
+        self.pipeXY()
+        self.screen.blit(self.gameover, (self.birdX + 12 - 96, self.birdY - 90))
+        self.score_count = 0    
         self.speed = 1
         self.center = 0
-        self.pipeXY()
         sound_controller.stop_all()
         sound_controller.fail()
 
@@ -136,7 +136,6 @@ class FlappyBird:
             score_image = pygame.image.load('sprites/' + score[int(str(self.score_count)[i])])
             self.x += score_image.get_size()[0]
             self.screen.blit(score_image, (self.x, 0))
-
 
 
 game = FlappyBird()
