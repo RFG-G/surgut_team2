@@ -5,6 +5,7 @@ import sounddevice as sd
 import numpy as np
 import random
 from threading import Thread
+from sound_controller import sound_controller
 
 
 pygame.init()
@@ -28,11 +29,12 @@ skins = [['yellowbird-downflap.png', 'yellowbird-midflap.png', 'yellowbird-upfla
          ['redbird-downflap.png', 'redbird-midflap.png', 'redbird-upflap.png'],
          ['bluebird-downflap.png', 'bluebird-midflap.png', 'bluebird-upflap.png']]
 pipes = ['pipe-green.png', 'pipe-red.png']
-background = ['background2.mp3', 'background2.mp3', 'background3.mp3', 'background4.mp3', 'background5.mp3']
+
 
 
 class FlappyBird:
     def __init__(self):
+        self.sound_controller = sound_controller()
         self.volume = 0
         self.screen = pygame.display.set_mode((width, height))  # Создаем экран
         self.selectedBird = 0  # Номер списка выбранной птицы
@@ -56,14 +58,22 @@ class FlappyBird:
             1] < 700 // 2 + 30:
             self.buttonPlay = False
         if not self.buttonPlay:
-            self.sounds()
+            self.sound_controller.play()
             self.fillBackground()
             self.update()
             s = pygame.transform.rotate(self.bird, 180)
             self.screen.blit(s, (self.birdX, self.birdY))
             self.screen.blit(self.pipe, (self.pipeX, self.pipeYU))
 
-    def update(self):  # Падение птицы
+    def update(self):  # Обновление экрана
+        if self.birdY < 0 or self.birdY > 670 \
+                or (self.pipeX - 19 < self.birdX + 17 < self.pipeX + 26 and self.pipeYU < self.birdY < self.pipeYU + 750) \
+                or (self.pipeX - 19 < self.birdX + 17 < self.pipeX + 26 and self.pipeYD < self.birdY + 24 < self.pipeYD + 750) \
+                or (self.pipeX - 19 < self.birdX < self.pipeX + 26 and self.pipeYU < self.birdY < self.pipeYU + 750) \
+                or (self.pipeX - 19 < self.birdX < self.pipeX + 26 and self.pipeYD < self.birdY + 24 < self.pipeYD + 750):
+            self.sound_controller.fail()
+            self.fail()
+
         self.birdY -= 0.03 * self.center
         if self.center > 0:
             self.position = 2
@@ -103,10 +113,7 @@ class FlappyBird:
             self.speed += 0.3
             self.pipeXY()
 
-    def sounds(self):
-        sound_position = random.randint(0, 4)
-        sound = pygame.mixer.Sound('audio/background/' + str(background[sound_position]))
-        sound.play()
+
 game = FlappyBird()
 
 
@@ -125,6 +132,7 @@ s = Thread(target=s)
 s.start()
 
 
+sound_controller = sound_controller()
 while True:
     for event in pygame.event.get():
         keys = pygame.key.get_pressed()
@@ -136,10 +144,11 @@ while True:
                 game.buttons()
             elif not game.buttonPlay:
                 game.center += 80
+                sound_controller.swoosh()
     if not game.buttonPlay:
         game.update()
-        if game.volume > 15:
+        if game.volume > 20:
             if not game.buttonPlay:
                 game.center += 5
     pygame.display.flip()
-    fpsClock.tick(60)
+    fpsClock.tick(120)
