@@ -36,9 +36,13 @@ score = ['0.png', '1.png', '2.png', '3.png', '4.png', '5.png', '6.png', '7.png',
 
 class FlappyBird:
     def __init__(self):
+        self.coin_image = pygame.transform.scale(pygame.image.load('sprites/money.png'), (20, 20))
+        self.gameover = pygame.image.load('sprites/gameover.png')
         self.coin = False
+        self.coin_visible = 0
         self.sound_controller = sound_controller()
         self.score_count = 0
+        self.points_count = 0
         self.volume = 0
         self.screen = pygame.display.set_mode((width, height))  # Создаем экран
         self.selectedBird = 0  # Номер списка выбранной птицы
@@ -84,6 +88,10 @@ class FlappyBird:
         self.screen.blit(self.pipe, (self.pipeX, self.pipeYD))  # отрисовываем нижнюю трубу
         if self.coin:
             self.screen.blit(self.coin_image, (self.coinX, self.coinY))
+        if self.coinX <= self.birdX and self.coin:
+            self.points_count += 1
+            sound_controller.coin()
+            self.coin = False
         if self.birdY < 0 or self.birdY > 670 \
                 or (self.pipeX - 19 < self.birdX + 17 < self.pipeX + 26 and self.pipeYU < self.birdY < self.pipeYU + 750) \
                 or (self.pipeX - 19 < self.birdX + 17 < self.pipeX + 26 and self.pipeYD < self.birdY + 24 < self.pipeYD + 750) \
@@ -92,15 +100,16 @@ class FlappyBird:
             self.sound_controller.fail()
             self.fail()
         self.score()
+        self.points()
 
     def fail(self):  # Проигрыш
         self.buttonPlay = True
         self.reset_game()
         self.load_button()
-        self.gameover = pygame.image.load('sprites/gameover.png')
+
         self.pipeXY()
         self.screen.blit(self.gameover, (self.birdX + 12 - 96, self.birdY - 90))
-        self.score_count = 0    
+        self.score_count = 0
         self.speed = 1
         self.center = 0
         sound_controller.stop_all()
@@ -141,16 +150,22 @@ class FlappyBird:
             self.birdX = width // 2 - 34 // 2
             self.birdY = height // 2 - 34 // 2
 
-    def score(self):
-        self.x = 0
+    def score(self):  # Очки
+        self.x_score = 0
         for i in range(len(str(self.score_count))):
             score_image = pygame.image.load('sprites/score/' + score[int(str(self.score_count)[i])])
-            self.x += score_image.get_size()[0]
-            self.screen.blit(score_image, (self.x, 0))
+            self.x_score += score_image.get_size()[0]
+            self.screen.blit(score_image, (self.x_score, 0))
+
+    def points(self):  #
+        self.x_points = 0
+        for i in range(len(str(self.points_count))):
+            points_image = pygame.image.load('sprites/points/' + score[int(str(self.points_count)[i])])
+            self.x_points += points_image.get_size()[0]
+            self.screen.blit(points_image, (300 + self.x_points, 0))
 
     def load_coin(self):
         if self.coin:
-            self.coin_image = pygame.transform.scale(pygame.image.load('sprites/money.png'), (20, 20))
             self.coinX = self.pipeX + 26 - 13
             self.coinY = self.pipeYD - 65
 
@@ -195,5 +210,5 @@ while True:
         if game.volume > 20:
             if not game.buttonPlay:
                 game.center += 5
-    fpsClock.tick(120)
+    fpsClock.tick(60)
     pygame.display.flip()

@@ -9,6 +9,7 @@ class sound_controller:
         self.sound = pygame.mixer.Sound('audio/background/' + str(background[sound_position]))
         self.fail_audio = pygame.mixer.Sound('audio/die.ogg')
         self.swoosh_audio = pygame.mixer.Sound('audio/swoosh.ogg')
+        self.coin_audio = pygame.mixer.Sound('audio/point.ogg')
 
     def play(self):
         self.sound.play()
@@ -18,6 +19,9 @@ class sound_controller:
 
     def swoosh(self):
         self.swoosh_audio.play()
+
+    def coin(self):
+        self.coin_audio.play()
 
     def stop_all(self):
         pygame.mixer.stop()
