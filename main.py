@@ -51,7 +51,8 @@ class FlappyBird:
         self.selectedPipe = 0  # Номер списка идущей трубы
         self.position = 1  # Позиция анимации птицы
         self.speed = 1  # Множитель скорости
-        self.buttonPlay = True  # Нажата кнопка или нет
+        self.buttonPlay = True  # Есть ли кнопка н экране или нет
+        self.market = False  # Зашел ли игрок в магазин или нет
         self.fillBackground()
         self.load_bird()
         self.pipeXY()
@@ -65,8 +66,10 @@ class FlappyBird:
         if os.path.exists('config.txt'):
             with open('config.txt', 'r') as config:
                 args = config.read()
-                print(args)
-                self.points_count = args[0]
+                try:
+                    self.points_count = int(args[0])
+                except IndexError:
+                    self.points_count = 0
         else:
             with open('config.txt', 'w') as config:
                 config.write('0')
@@ -74,9 +77,24 @@ class FlappyBird:
 
     def buttons(self):  # Нажатия которые производят в игре
         try:
+
             if self.buttonPlay and 376 // 2 - 60 < event.pos[0] < 376 // 2 + 60 and 700 // 2 - 30 < event.pos[
-                1] < 700 // 2 + 30:
+                1] < 700 // 2 + 30 and not self.market:
                 self.buttonPlay = False
+            elif self.buttonPlay and width // 2 - 30 < event.pos[0] < width // 2 + 30 and height // 2 + 30 < event.pos[1] < height // 2 + 90:
+                self.market = True
+            elif self.market and self.birdX - 70 < event.pos[0] < self.birdX - 20 and self.birdY - 12 < event.pos[1]\
+                    < self.birdY + 38:
+                self.selectedBird -= 1
+                if self.selectedBird == -1:
+                    self.selectedBird = len(skins) - 1
+                self.load_bird()
+            elif self.market and self.birdX + 56 < event.pos[0] < self.birdX + 106 and self.birdY - 12 < event.pos[1]\
+                    < self.birdY + 38:
+                self.selectedBird += 1
+                if self.selectedBird == len(skins):
+                    self.selectedBird = 0
+                self.load_bird()
             if not self.buttonPlay:
                 self.sound_controller.play()
                 self.fillBackground()
@@ -87,36 +105,46 @@ class FlappyBird:
             print('Слишком много нажатий или нажимаете там где не надо.')
 
     def update(self):  # Обновление экрана
-        self.birdY -= 0.03 * self.center
-        if self.center > 0:
-            self.position = 2
-        elif self.center == 0:
-            self.position = 1
-        elif self.center < 0:
-            self.position = 0
-        self.load_bird()
-        self.center -= 2  # Чтобы птица уходила вниз
-        self.fillBackground()
-        self.gameplay_pipe()
-        self.load_coin()
-        self.screen.blit(self.bird, (self.birdX, self.birdY))  # отрисовываем птицу
-        self.screen.blit(pygame.transform.rotate(self.pipe, 180), (self.pipeX, self.pipeYU))  # отрисовываем верхнюю трубу
-        self.screen.blit(self.pipe, (self.pipeX, self.pipeYD))  # отрисовываем нижнюю трубу
-        if self.coin:
-            self.screen.blit(self.coin_image, (self.coinX, self.coinY))
-        if self.coinX <= self.birdX + 34 and self.coin:
-            self.points_count += 1
-            sound_controller.coin()
-            self.coin = False
-        if self.birdY < 0 or self.birdY > 670 \
-                or (self.pipeX - 19 < self.birdX + 17 < self.pipeX + 26 and self.pipeYU < self.birdY < self.pipeYU + 750) \
-                or (self.pipeX - 19 < self.birdX + 17 < self.pipeX + 26 and self.pipeYD < self.birdY + 24 < self.pipeYD + 750) \
-                or (self.pipeX - 19 < self.birdX < self.pipeX + 26 and self.pipeYU < self.birdY < self.pipeYU + 750) \
-                or (self.pipeX - 19 < self.birdX < self.pipeX + 26 and self.pipeYD < self.birdY < self.pipeYD + 750):
-            self.sound_controller.fail()
-            self.fail()
-        self.score()
-        self.points()
+        try:
+            self.load_bird()
+            self.fillBackground()
+            self.load_coin()
+            if not self.market:
+                self.birdY -= 0.03 * self.center
+                if self.center > 0:
+                    self.position = 2
+                elif self.center == 0:
+                    self.position = 1
+                elif self.center < 0:
+                    self.position = 0
+
+                self.center -= 2  # Чтобы птица уходила вниз
+                self.gameplay_pipe()
+                self.screen.blit(self.bird, (self.birdX, self.birdY))  # отрисовываем птицу
+                self.screen.blit(pygame.transform.rotate(self.pipe, 180), (self.pipeX, self.pipeYU))  # отрисовываем верхнюю трубу
+                self.screen.blit(self.pipe, (self.pipeX, self.pipeYD))  # отрисовываем нижнюю трубу
+                if self.coin:
+                    self.screen.blit(self.coin_image, (self.coinX, self.coinY))
+                if self.coinX <= self.birdX + 34 and self.coin:
+                    self.points_count += 1
+                    sound_controller.coin()
+                    self.coin = False
+                if self.birdY < 0 or self.birdY > 670 \
+                        or (self.pipeX - 19 < self.birdX + 17 < self.pipeX + 26 and self.pipeYU < self.birdY < self.pipeYU + 750) \
+                        or (self.pipeX - 19 < self.birdX + 17 < self.pipeX + 26 and self.pipeYD < self.birdY + 24 < self.pipeYD + 750) \
+                        or (self.pipeX - 19 < self.birdX < self.pipeX + 26 and self.pipeYU < self.birdY < self.pipeYU + 750) \
+                        or (self.pipeX - 19 < self.birdX < self.pipeX + 26 and self.pipeYD < self.birdY < self.pipeYD + 750):
+                    self.sound_controller.fail()
+                    self.fail()
+                self.score()
+                self.points()
+            else:
+                self.load_pointer()
+                self.screen.blit(self.bird, (self.birdX, self.birdY))
+                self.screen.blit(self.pointer_left, (self.birdX - 70, self.birdY - 12))
+                self.screen.blit(self.pointer_right, (self.birdX + 56, self.birdY - 12))
+        except pygame.error:
+            print('Игра окончена')
 
     def fail(self):  # Проигрыш
         self.buttonPlay = True
@@ -134,7 +162,7 @@ class FlappyBird:
         self.screen.blit(bg, (0, 0))
 
     def load_bird(self):
-        self.bird = pygame.image.load('sprites/' + str(skins[self.selectedBird][self.position]))  # Кнопка начала игры
+        self.bird = pygame.image.load('sprites/' + str(skins[self.selectedBird][self.position]))  # Скин птицы
 
     def load_pipe(self):
         self.pipe = pygame.image.load('sprites/' + str(pipes[self.selectedPipe]))
@@ -188,8 +216,15 @@ class FlappyBird:
         market = pygame.transform.scale(store, (60, 60))
         self.screen.blit(market, (width // 2 - 30, height // 2 + 30))
 
+    def load_pointer(self):
+        self.pointer_left = pygame.image.load('sprites/buttons/button_left.png')
+        self.pointer_left = pygame.transform.scale(self.pointer_left, (50, 50))
+        self.pointer_right = pygame.image.load('sprites/buttons/button_right.png')
+        self.pointer_right = pygame.transform.scale(self.pointer_right, (50, 50))
+
     def quit(self):
-        pass
+        with open('config.txt', 'w') as config:
+            config.write(str(self.points_count))
 
 
 game = FlappyBird()
@@ -224,10 +259,13 @@ while True:
             elif not game.buttonPlay:
                 game.center += 80
                 sound_controller.swoosh()
-    if not game.buttonPlay:
+    if not game.buttonPlay or game.market:
         game.update()
         if game.volume > 20:
             if not game.buttonPlay:
                 game.center += 5
     fpsClock.tick(60)
-    pygame.display.flip()
+    try:
+        pygame.display.flip()
+    except pygame.error:
+        pass
