@@ -6,6 +6,7 @@ import numpy as np
 import random
 from threading import Thread
 from sound_controller import sound_controller
+import os.path
 
 
 pygame.init()
@@ -39,10 +40,11 @@ class FlappyBird:
         self.coin_image = pygame.transform.scale(pygame.image.load('sprites/money.png'), (20, 20))
         self.gameover = pygame.image.load('sprites/gameover.png')
         self.coin = False
+        self.coinX = 0
         self.coin_visible = 0
         self.sound_controller = sound_controller()
         self.score_count = 0
-        self.points_count = 0
+        self.conf_manager()
         self.volume = 0
         self.screen = pygame.display.set_mode((width, height))  # Создаем экран
         self.selectedBird = 0  # Номер списка выбранной птицы
@@ -59,16 +61,30 @@ class FlappyBird:
         self.click = 0  # Счетчик нажатий
         self.center = -1
 
+    def conf_manager(self):
+        if os.path.exists('config.txt'):
+            with open('config.txt', 'r') as config:
+                args = config.read()
+                print(args)
+                self.points_count = args[0]
+        else:
+            with open('config.txt', 'w') as config:
+                config.write('0')
+                self.points_count = 0
+
     def buttons(self):  # Нажатия которые производят в игре
-        if self.buttonPlay and 376 // 2 - 60 < event.pos[0] < 376 // 2 + 60 and 700 // 2 - 30 < event.pos[
-            1] < 700 // 2 + 30:
-            self.buttonPlay = False
-        if not self.buttonPlay:
-            self.sound_controller.play()
-            self.fillBackground()
-            self.update()
-            self.screen.blit(pygame.transform.rotate(self.bird, 180), (self.birdX, self.birdY))
-            self.screen.blit(self.pipe, (self.pipeX, self.pipeYU))
+        try:
+            if self.buttonPlay and 376 // 2 - 60 < event.pos[0] < 376 // 2 + 60 and 700 // 2 - 30 < event.pos[
+                1] < 700 // 2 + 30:
+                self.buttonPlay = False
+            if not self.buttonPlay:
+                self.sound_controller.play()
+                self.fillBackground()
+                self.update()
+                self.screen.blit(pygame.transform.rotate(self.bird, 180), (self.birdX, self.birdY))
+                self.screen.blit(self.pipe, (self.pipeX, self.pipeYU))
+        except AttributeError:
+            print('Слишком много нажатий или нажимаете там где не надо.')
 
     def update(self):  # Обновление экрана
         self.birdY -= 0.03 * self.center
@@ -88,7 +104,7 @@ class FlappyBird:
         self.screen.blit(self.pipe, (self.pipeX, self.pipeYD))  # отрисовываем нижнюю трубу
         if self.coin:
             self.screen.blit(self.coin_image, (self.coinX, self.coinY))
-        if self.coinX <= self.birdX and self.coin:
+        if self.coinX <= self.birdX + 34 and self.coin:
             self.points_count += 1
             sound_controller.coin()
             self.coin = False
@@ -106,7 +122,6 @@ class FlappyBird:
         self.buttonPlay = True
         self.reset_game()
         self.load_button()
-
         self.pipeXY()
         self.screen.blit(self.gameover, (self.birdX + 12 - 96, self.birdY - 90))
         self.score_count = 0
@@ -128,7 +143,7 @@ class FlappyBird:
         self.pipeX = random.randint(400, 550)
         self.pipeYU = random.randint(-670, -150)
         self.pipeYD = self.pipeYU + 850
-        if 1 == 1:
+        if random.randint(0, 1) == 1:
             self.coin = True
         else:
             self.coin = False
@@ -173,6 +188,9 @@ class FlappyBird:
         market = pygame.transform.scale(store, (60, 60))
         self.screen.blit(market, (width // 2 - 30, height // 2 + 30))
 
+    def quit(self):
+        pass
+
 
 game = FlappyBird()
 
@@ -197,6 +215,7 @@ while True:
     for event in pygame.event.get():
         keys = pygame.key.get_pressed()
         if event.type == pygame.QUIT:
+            game.quit()
             pygame.quit()
         if event.type == pygame.MOUSEBUTTONDOWN or keys[pygame.K_SPACE] or event.type == pygame.JOYBUTTONUP:
             # Срабатывает при нажатии на кнопку или при на кнопки на джойстике
