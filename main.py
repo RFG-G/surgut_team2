@@ -26,6 +26,7 @@ button = pygame.image.load('sprites/i.png')  # Кнопка начала игр�
 button = pygame.transform.scale(button, (120, 60))
 bg = pygame.image.load("sprites/background-day.png")  # Меняем фон
 bg = pygame.transform.scale(bg, (width, height))
+store = pygame.image.load('sprites/market.png')
 skins = [['yellowbird-downflap.png', 'yellowbird-midflap.png', 'yellowbird-upflap.png'],
          ['redbird-downflap.png', 'redbird-midflap.png', 'redbird-upflap.png'],
          ['bluebird-downflap.png', 'bluebird-midflap.png', 'bluebird-upflap.png']]
@@ -35,6 +36,7 @@ score = ['0.png', '1.png', '2.png', '3.png', '4.png', '5.png', '6.png', '7.png',
 
 class FlappyBird:
     def __init__(self):
+        self.coin = False
         self.sound_controller = sound_controller()
         self.score_count = 0
         self.volume = 0
@@ -48,9 +50,10 @@ class FlappyBird:
         self.load_bird()
         self.pipeXY()
         self.load_pipe()
+        self.load_button()
+        self.load_market()
         self.click = 0  # Счетчик нажатий
         self.center = -1
-        self.load_button()
 
     def buttons(self):  # Нажатия которые производят в игре
         if self.buttonPlay and 376 // 2 - 60 < event.pos[0] < 376 // 2 + 60 and 700 // 2 - 30 < event.pos[
@@ -75,9 +78,12 @@ class FlappyBird:
         self.center -= 2  # Чтобы птица уходила вниз
         self.fillBackground()
         self.gameplay_pipe()
+        self.load_coin()
         self.screen.blit(self.bird, (self.birdX, self.birdY))  # отрисовываем птицу
         self.screen.blit(pygame.transform.rotate(self.pipe, 180), (self.pipeX, self.pipeYU))  # отрисовываем верхнюю трубу
         self.screen.blit(self.pipe, (self.pipeX, self.pipeYD))  # отрисовываем нижнюю трубу
+        if self.coin:
+            self.screen.blit(self.coin_image, (self.coinX, self.coinY))
         if self.birdY < 0 or self.birdY > 670 \
                 or (self.pipeX - 19 < self.birdX + 17 < self.pipeX + 26 and self.pipeYU < self.birdY < self.pipeYU + 750) \
                 or (self.pipeX - 19 < self.birdX + 17 < self.pipeX + 26 and self.pipeYD < self.birdY + 24 < self.pipeYD + 750) \
@@ -113,6 +119,11 @@ class FlappyBird:
         self.pipeX = random.randint(400, 550)
         self.pipeYU = random.randint(-670, -150)
         self.pipeYD = self.pipeYU + 850
+        if 1 == 1:
+            self.coin = True
+        else:
+            self.coin = False
+        self.load_coin()
 
     def gameplay_pipe(self):
         self.pipeX -= 1 * self.speed
@@ -133,9 +144,19 @@ class FlappyBird:
     def score(self):
         self.x = 0
         for i in range(len(str(self.score_count))):
-            score_image = pygame.image.load('sprites/' + score[int(str(self.score_count)[i])])
+            score_image = pygame.image.load('sprites/score/' + score[int(str(self.score_count)[i])])
             self.x += score_image.get_size()[0]
             self.screen.blit(score_image, (self.x, 0))
+
+    def load_coin(self):
+        if self.coin:
+            self.coin_image = pygame.transform.scale(pygame.image.load('sprites/money.png'), (20, 20))
+            self.coinX = self.pipeX + 26 - 13
+            self.coinY = self.pipeYD - 65
+
+    def load_market(self):
+        market = pygame.transform.scale(store, (60, 60))
+        self.screen.blit(market, (width // 2 - 30, height // 2 + 30))
 
 
 game = FlappyBird()
