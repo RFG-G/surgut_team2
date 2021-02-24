@@ -39,6 +39,7 @@ class FlappyBird:
     def __init__(self):
         self.coin_image = pygame.transform.scale(pygame.image.load('sprites/money.png'), (20, 20))
         self.gameover = pygame.image.load('sprites/gameover.png')
+        self.score_title = pygame.image.load('sprites/score_title.png')
         self.coin = False
         self.coinX = 0
         self.coin_visible = 0
@@ -73,6 +74,7 @@ class FlappyBird:
         else:
             with open('config.txt', 'w') as config:
                 config.write('0')
+                config.write('skins: 0')
                 self.points_count = 0
 
     def buttons(self):  # Нажатия которые производят в игре
@@ -117,7 +119,6 @@ class FlappyBird:
                     self.position = 1
                 elif self.center < 0:
                     self.position = 0
-
                 self.center -= 2  # Чтобы птица уходила вниз
                 self.gameplay_pipe()
                 self.screen.blit(self.bird, (self.birdX, self.birdY))  # отрисовываем птицу
@@ -143,6 +144,7 @@ class FlappyBird:
                 self.screen.blit(self.bird, (self.birdX, self.birdY))
                 self.screen.blit(self.pointer_left, (self.birdX - 70, self.birdY - 12))
                 self.screen.blit(self.pointer_right, (self.birdX + 56, self.birdY - 12))
+                self.screen.blit(pygame.transform.scale(self.score_title, (270, 130)), (self.birdX - 120, self.birdY - 200))
         except pygame.error:
             print('Игра окончена')
 
@@ -222,9 +224,16 @@ class FlappyBird:
         self.pointer_right = pygame.image.load('sprites/buttons/button_right.png')
         self.pointer_right = pygame.transform.scale(self.pointer_right, (50, 50))
 
-    def quit(self):
+    def skins(self):  # Взаимодействия со скинами
+        with open('config.txt', 'r') as config:
+            print(config)  # Для дозаписи скинов
+
+    def quit(self):  # Сохранение данных при выходе
+        with open('config.txt', 'r') as config:
+            text = config.read()
         with open('config.txt', 'w') as config:
-            config.write(str(self.points_count))
+            text = text.replace(str(text[0]), str(self.points_count))
+            config.write(text)
 
 
 game = FlappyBird()
@@ -247,24 +256,27 @@ s.start()
 
 sound_controller = sound_controller()
 while True:
-    for event in pygame.event.get():
-        keys = pygame.key.get_pressed()
-        if event.type == pygame.QUIT:
-            game.quit()
-            pygame.quit()
-        if event.type == pygame.MOUSEBUTTONDOWN or keys[pygame.K_SPACE] or event.type == pygame.JOYBUTTONUP:
-            # Срабатывает при нажатии на кнопку или при на кнопки на джойстике
-            if game.buttonPlay:
-                game.buttons()
-            elif not game.buttonPlay:
-                game.center += 80
-                sound_controller.swoosh()
-    if not game.buttonPlay or game.market:
-        game.update()
-        if game.volume > 20:
-            if not game.buttonPlay:
-                game.center += 5
-    fpsClock.tick(60)
+    try:
+        for event in pygame.event.get():
+            keys = pygame.key.get_pressed()
+            if event.type == pygame.QUIT:
+                game.quit()
+                pygame.quit()
+            if event.type == pygame.MOUSEBUTTONDOWN or keys[pygame.K_SPACE] or event.type == pygame.JOYBUTTONUP:
+                # Срабатывает при нажатии на кнопку или при на кнопки на джойстике
+                if game.buttonPlay:
+                    game.buttons()
+                elif not game.buttonPlay:
+                    game.center += 80
+                    sound_controller.swoosh()
+        if not game.buttonPlay or game.market:
+            game.update()
+            if game.volume > 20:
+                if not game.buttonPlay:
+                    game.center += 5
+        fpsClock.tick(60)
+    except pygame.error:
+        pass
     try:
         pygame.display.flip()
     except pygame.error:
