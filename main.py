@@ -8,7 +8,6 @@ from threading import Thread
 from sound_controller import sound_controller
 import os.path
 
-
 pygame.init()
 try:
     my_joystick = pygame.joystick.Joystick(0)
@@ -69,30 +68,33 @@ class FlappyBird:
                 args = config.read()
                 try:
                     self.points_count = int(args[0])
-                    self.skins = args.split('\n')[1].split(':')[1]
-                    print(self.skins)
+                    self.skins = args.split('\n')[1].split(':')[1:]
                 except IndexError:
                     self.points_count = 0
         else:
             with open('config.txt', 'w') as config:
-                config.write('0')
-                config.write('skins: 0')
+                config.write('0\n')
+                print('Записало')
+                config.write('skins:0')
+                self.skins = ['0']
                 self.points_count = 0
+                config.close()
 
     def buttons(self):  # Нажатия которые производят в игре
         try:
             if self.buttonPlay and 376 // 2 - 60 < event.pos[0] < 376 // 2 + 60 and 700 // 2 - 30 < event.pos[
                 1] < 700 // 2 + 30 and not self.market:
                 self.buttonPlay = False
-            elif self.buttonPlay and width // 2 - 30 < event.pos[0] < width // 2 + 30 and height // 2 + 30 < event.pos[1] < height // 2 + 90:
+            elif self.buttonPlay and width // 2 - 30 < event.pos[0] < width // 2 + 30 and height // 2 + 30 < event.pos[
+                1] < height // 2 + 90:
                 self.market = True
-            elif self.market and self.birdX - 70 < event.pos[0] < self.birdX - 20 and self.birdY - 12 < event.pos[1]\
+            elif self.market and self.birdX - 70 < event.pos[0] < self.birdX - 20 and self.birdY - 12 < event.pos[1] \
                     < self.birdY + 38:
                 self.selectedBird -= 1
                 if self.selectedBird == -1:
                     self.selectedBird = len(skins) - 1
                 self.load_bird()
-            elif self.market and self.birdX + 56 < event.pos[0] < self.birdX + 106 and self.birdY - 12 < event.pos[1]\
+            elif self.market and self.birdX + 56 < event.pos[0] < self.birdX + 106 and self.birdY - 12 < event.pos[1] \
                     < self.birdY + 38:
                 self.selectedBird += 1
                 if self.selectedBird == len(skins):
@@ -123,7 +125,8 @@ class FlappyBird:
                 self.center -= 2  # Чтобы птица уходила вниз
                 self.gameplay_pipe()
                 self.screen.blit(self.bird, (self.birdX, self.birdY))  # отрисовываем птицу
-                self.screen.blit(pygame.transform.rotate(self.pipe, 180), (self.pipeX, self.pipeYU))  # отрисовываем верхнюю трубу
+                self.screen.blit(pygame.transform.rotate(self.pipe, 180),
+                                 (self.pipeX, self.pipeYU))  # отрисовываем верхнюю трубу
                 self.screen.blit(self.pipe, (self.pipeX, self.pipeYD))  # отрисовываем нижнюю трубу
                 if self.coin:
                     self.screen.blit(self.coin_image, (self.coinX, self.coinY))
@@ -132,10 +135,14 @@ class FlappyBird:
                     sound_controller.coin()
                     self.coin = False
                 if self.birdY < 0 or self.birdY > 670 \
-                        or (self.pipeX - 19 < self.birdX + 17 < self.pipeX + 26 and self.pipeYU < self.birdY < self.pipeYU + 750) \
-                        or (self.pipeX - 19 < self.birdX + 17 < self.pipeX + 26 and self.pipeYD < self.birdY + 24 < self.pipeYD + 750) \
-                        or (self.pipeX - 19 < self.birdX < self.pipeX + 26 and self.pipeYU < self.birdY < self.pipeYU + 750) \
-                        or (self.pipeX - 19 < self.birdX < self.pipeX + 26 and self.pipeYD < self.birdY < self.pipeYD + 750):
+                        or (
+                        self.pipeX - 19 < self.birdX + 17 < self.pipeX + 26 and self.pipeYU < self.birdY < self.pipeYU + 750) \
+                        or (
+                        self.pipeX - 19 < self.birdX + 17 < self.pipeX + 26 and self.pipeYD < self.birdY + 24 < self.pipeYD + 750) \
+                        or (
+                        self.pipeX - 19 < self.birdX < self.pipeX + 26 and self.pipeYU < self.birdY < self.pipeYU + 750) \
+                        or (
+                        self.pipeX - 19 < self.birdX < self.pipeX + 26 and self.pipeYD < self.birdY < self.pipeYD + 750):
                     self.sound_controller.fail()
                     self.fail()
                 self.score()
@@ -145,7 +152,8 @@ class FlappyBird:
                 self.screen.blit(self.bird, (self.birdX, self.birdY))
                 self.screen.blit(self.pointer_left, (self.birdX - 70, self.birdY - 12))
                 self.screen.blit(self.pointer_right, (self.birdX + 56, self.birdY - 12))
-                self.screen.blit(pygame.transform.scale(self.score_title, (270, 130)), (self.birdX - 120, self.birdY - 200))
+                self.screen.blit(pygame.transform.scale(self.score_title, (270, 130)),
+                                 (self.birdX - 120, self.birdY - 200))
 
         except pygame.error:
             print('Игра окончена')
@@ -226,13 +234,25 @@ class FlappyBird:
         self.pointer_right = pygame.image.load('sprites/buttons/button_right.png')
         self.pointer_right = pygame.transform.scale(self.pointer_right, (50, 50))
 
-    def skins(self):  # Взаимодействия со скинами
-        with open('config.txt', 'r') as config:
-            print(config)  # Для дозаписи скинов
+    def save_skins(self):  # Для сохранения скинов
+        try:
+            with open('config.txt', 'r') as config:
+                skins = config.readlines()
+            with open('config.txt', 'w') as config:
+                skins[1] = 'skins:' + ','.join(self.skins)
+                config.writelines(skins)
+                config.close()
+        except AttributeError:
+            print('При сохранении что то пошло не так')
+
+    def buy_skins(self):
+        pass
 
     def quit(self):  # Сохранение данных при выходе
+        self.save_skins()
         with open('config.txt', 'r') as config:
             text = config.read()
+            # print(text)
         with open('config.txt', 'w') as config:
             text = text.replace(str(text[0]), str(self.points_count))
             config.write(text)
@@ -255,7 +275,6 @@ def s(*args):
 s = Thread(target=s)
 s.start()
 
-
 sound_controller = sound_controller()
 while True:
     try:
@@ -276,7 +295,7 @@ while True:
             if game.volume > 20:
                 if not game.buttonPlay:
                     game.center += 5
-        fpsClock.tick(60)
+        fpsClock.tick(90)
     except pygame.error:
         pass
     try:
