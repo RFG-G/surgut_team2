@@ -1,2 +1,2 @@
-0
-skins: 0
+2
+skins: 2
