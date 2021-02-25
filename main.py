@@ -69,6 +69,8 @@ class FlappyBird:
                 args = config.read()
                 try:
                     self.points_count = int(args[0])
+                    self.skins = args.split('\n')[1].split(':')[1]
+                    print(self.skins)
                 except IndexError:
                     self.points_count = 0
         else:
@@ -79,7 +81,6 @@ class FlappyBird:
 
     def buttons(self):  # Нажатия которые производят в игре
         try:
-
             if self.buttonPlay and 376 // 2 - 60 < event.pos[0] < 376 // 2 + 60 and 700 // 2 - 30 < event.pos[
                 1] < 700 // 2 + 30 and not self.market:
                 self.buttonPlay = False
@@ -145,6 +146,7 @@ class FlappyBird:
                 self.screen.blit(self.pointer_left, (self.birdX - 70, self.birdY - 12))
                 self.screen.blit(self.pointer_right, (self.birdX + 56, self.birdY - 12))
                 self.screen.blit(pygame.transform.scale(self.score_title, (270, 130)), (self.birdX - 120, self.birdY - 200))
+
         except pygame.error:
             print('Игра окончена')
 
