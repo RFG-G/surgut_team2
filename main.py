@@ -251,11 +251,10 @@ class FlappyBird:
     def quit(self):  # Сохранение данных при выходе
         self.save_skins()
         with open('config.txt', 'r') as config:
-            text = config.read()
-            # print(text)
+            text = config.readlines()
         with open('config.txt', 'w') as config:
-            text = text.replace(str(text[0]), str(self.points_count))
-            config.write(text)
+            text[0] = str(self.points_count) + '\n'
+            config.writelines(text)
 
 
 game = FlappyBird()
@@ -267,7 +266,7 @@ def print_sound(indata, *args):
     # print(game.volume)
 
 
-def s(*args):
+def s():
     with sd.Stream(callback=print_sound):
         sd.sleep(-1)
 
