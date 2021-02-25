@@ -65,16 +65,18 @@ class FlappyBird:
     def conf_manager(self):
         if os.path.exists('config.txt'):
             with open('config.txt', 'r') as config:
-                args = config.read()
+                args = config.readlines()
                 try:
                     self.points_count = int(args[0])
-                    self.skins = args.split('\n')[1].split(':')[1:]
+                    self.skins = args[1].split(':')[1:]
+                    if ',' in self.skins[0]:
+                        self.skins = self.skins[0].split(',')
+                        print(self.skins)
                 except IndexError:
                     self.points_count = 0
         else:
             with open('config.txt', 'w') as config:
                 config.write('0\n')
-                print('Записало')
                 config.write('skins:0')
                 self.skins = ['0']
                 self.points_count = 0
@@ -86,7 +88,7 @@ class FlappyBird:
                 1] < 700 // 2 + 30 and not self.market:
                 self.buttonPlay = False
             elif self.buttonPlay and width // 2 - 30 < event.pos[0] < width // 2 + 30 and height // 2 + 30 < event.pos[
-                1] < height // 2 + 90:
+                1] < height // 2 + 90 and not self.market:
                 self.market = True
             elif self.market and self.birdX - 70 < event.pos[0] < self.birdX - 20 and self.birdY - 12 < event.pos[1] \
                     < self.birdY + 38:
@@ -100,6 +102,15 @@ class FlappyBird:
                 if self.selectedBird == len(skins):
                     self.selectedBird = 0
                 self.load_bird()
+            elif self.market and self.birdX - 50 + 17 < event.pos[0] < self.birdX + 50 + 17 and \
+                    self.birdY + 50 < event.pos[1] < self.birdY + 110 and str(self.selectedBird) in self.skins:
+                self.market = False
+                self.buttonPlay = False
+            elif self.market and self.birdX - 30 + 17 < event.pos[0] < self.birdX + 30 + 17 and \
+                    self.birdY + 50 < event.pos[1] < self.birdY + 110:
+                if self.points_count >= 10:
+                    self.skins.append(str(self.selectedBird))
+                    self.points_count -= 10
             if not self.buttonPlay:
                 self.sound_controller.play()
                 self.fillBackground()
@@ -149,11 +160,22 @@ class FlappyBird:
                 self.points()
             else:
                 self.load_pointer()
+                self.points()
                 self.screen.blit(self.bird, (self.birdX, self.birdY))
                 self.screen.blit(self.pointer_left, (self.birdX - 70, self.birdY - 12))
                 self.screen.blit(self.pointer_right, (self.birdX + 56, self.birdY - 12))
                 self.screen.blit(pygame.transform.scale(self.score_title, (270, 130)),
                                  (self.birdX - 120, self.birdY - 200))
+                if str(self.selectedBird) in self.skins:
+                    self.screen.blit(pygame.transform.scale(pygame.image.load('sprites/buttons/ok.png'), (100, 60)),
+                                     (self.birdX - 50 + 17, self.birdY + 50))
+                elif self.points_count < 10:
+                    self.screen.blit(pygame.transform.scale(pygame.image.load('sprites/buttons/don,t buy.png'), (60, 60)),
+                                     (self.birdX - 30 + 17, self.birdY + 50))
+                elif self.points_count >= 10:
+                    self.screen.blit(
+                        pygame.transform.scale(pygame.image.load('sprites/buttons/buy.png'), (60, 60)),
+                        (self.birdX - 30 + 17, self.birdY + 50))
 
         except pygame.error:
             print('Игра окончена')
@@ -162,6 +184,7 @@ class FlappyBird:
         self.buttonPlay = True
         self.reset_game()
         self.load_button()
+        self.load_market()
         self.pipeXY()
         self.screen.blit(self.gameover, (self.birdX + 12 - 96, self.birdY - 90))
         self.score_count = 0
