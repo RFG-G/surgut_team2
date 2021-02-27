@@ -62,7 +62,7 @@ class FlappyBird:
         self.click = 0  # Счетчик нажатий
         self.center = -1
 
-    def conf_manager(self):
+    def conf_manager(self):  # Менеджер загрузки конфига
         if os.path.exists('config.txt'):
             with open('config.txt', 'r') as config:
                 args = config.readlines()
@@ -125,7 +125,7 @@ class FlappyBird:
             self.load_bird()
             self.fillBackground()
             self.load_coin()
-            if not self.market:
+            if not self.market:  # Если не в маркете то играем и меняем анимация полета
                 self.birdY -= 0.03 * self.center
                 if self.center > 0:
                     self.position = 2
@@ -139,9 +139,9 @@ class FlappyBird:
                 self.screen.blit(pygame.transform.rotate(self.pipe, 180),
                                  (self.pipeX, self.pipeYU))  # отрисовываем верхнюю трубу
                 self.screen.blit(self.pipe, (self.pipeX, self.pipeYD))  # отрисовываем нижнюю трубу
-                if self.coin:
+                if self.coin:  # Если монетка есть
                     self.screen.blit(self.coin_image, (self.coinX, self.coinY))
-                if self.coinX <= self.birdX + 34 and self.coin:
+                if self.coinX <= self.birdX + 34 and self.coin:  # Подъем монетки
                     self.points_count += 1
                     sound_controller.coin()
                     self.coin = False
@@ -153,10 +153,10 @@ class FlappyBird:
                         or (
                         self.pipeX - 19 < self.birdX < self.pipeX + 26 and self.pipeYU < self.birdY < self.pipeYU + 750) \
                         or (
-                        self.pipeX - 19 < self.birdX < self.pipeX + 26 and self.pipeYD < self.birdY < self.pipeYD + 750):
+                        self.pipeX - 19 < self.birdX < self.pipeX + 26 and self.pipeYD < self.birdY < self.pipeYD + 750):  # Проигрыш
                     self.sound_controller.fail()
                     self.fail()
-                self.score()
+                self.score()  # Отрисовка очков и кол-ва монеток
                 self.points()
             else:
                 self.load_pointer()
@@ -182,7 +182,7 @@ class FlappyBird:
 
     def fail(self):  # Проигрыш
         self.buttonPlay = True
-        self.reset_game()
+        self.fillBackground()
         self.load_button()
         self.load_market()
         self.pipeXY()
@@ -196,13 +196,13 @@ class FlappyBird:
     def fillBackground(self):  # Рисуем фон
         self.screen.blit(bg, (0, 0))
 
-    def load_bird(self):
+    def load_bird(self):  # Загрузка птицы
         self.bird = pygame.image.load('sprites/' + str(skins[self.selectedBird][self.position]))  # Скин птицы
 
-    def load_pipe(self):
+    def load_pipe(self):  # Загрузка трубы
         self.pipe = pygame.image.load('sprites/' + str(pipes[self.selectedPipe]))
 
-    def pipeXY(self):
+    def pipeXY(self):  # Получаем X и Y для трубы
         self.pipeX = random.randint(400, 550)
         self.pipeYU = random.randint(-670, -150)
         self.pipeYD = self.pipeYU + 850
@@ -212,17 +212,14 @@ class FlappyBird:
             self.coin = False
         self.load_coin()
 
-    def gameplay_pipe(self):
+    def gameplay_pipe(self):  # Функция для работы труб
         self.pipeX -= 1 * self.speed
         if self.pipeX < -60:
             self.score_count += 1
             self.speed += 0.3
             self.pipeXY()
 
-    def reset_game(self):
-        self.fillBackground()
-
-    def load_button(self):
+    def load_button(self):  # Загрузка кнопки 'играть'
         if self.buttonPlay:
             self.screen.blit(button, (width // 2 - 60, height // 2 - 30))
             self.birdX = width // 2 - 34 // 2
@@ -235,23 +232,23 @@ class FlappyBird:
             self.x_score += score_image.get_size()[0]
             self.screen.blit(score_image, (self.x_score, 0))
 
-    def points(self):  #
+    def points(self):  # Моенты игрока
         self.x_points = 0
         for i in range(len(str(self.points_count))):
             points_image = pygame.image.load('sprites/points/' + score[int(str(self.points_count)[i])])
             self.x_points += points_image.get_size()[0]
             self.screen.blit(points_image, (300 + self.x_points, 0))
 
-    def load_coin(self):
+    def load_coin(self):  # Загрузка монетки
         if self.coin:
             self.coinX = self.pipeX + 26 - 13
             self.coinY = self.pipeYD - 65
 
-    def load_market(self):
+    def load_market(self):  # Загрузка и отображение маркета
         market = pygame.transform.scale(store, (60, 60))
         self.screen.blit(market, (width // 2 - 30, height // 2 + 30))
 
-    def load_pointer(self):
+    def load_pointer(self):  # Загрузка стрелок
         self.pointer_left = pygame.image.load('sprites/buttons/button_left.png')
         self.pointer_left = pygame.transform.scale(self.pointer_left, (50, 50))
         self.pointer_right = pygame.image.load('sprites/buttons/button_right.png')
@@ -268,9 +265,6 @@ class FlappyBird:
         except AttributeError:
             print('При сохранении что то пошло не так')
 
-    def buy_skins(self):
-        pass
-
     def quit(self):  # Сохранение данных при выходе
         self.save_skins()
         with open('config.txt', 'r') as config:
@@ -280,24 +274,24 @@ class FlappyBird:
             config.writelines(text)
 
 
-game = FlappyBird()
+game = FlappyBird()  # Инициализация игры
 
 
-def print_sound(indata, *args):
+def print_sound(indata, *args):  # Измерение звука
     volume_norm = np.linalg.norm(indata) * 10
     game.volume = int(volume_norm)
     # print(game.volume)
 
 
-def s():
+def sound_func():  # Функция для каллбека
     with sd.Stream(callback=print_sound):
         sd.sleep(-1)
 
 
-s = Thread(target=s)
+s = Thread(target=sound_func())  # Отдельный поток для параллельного измерения звука
 s.start()
 
-sound_controller = sound_controller()
+sound_controller = sound_controller()  # Инициализируем звуковой контроллер
 while True:
     try:
         for event in pygame.event.get():
@@ -309,12 +303,12 @@ while True:
                 # Срабатывает при нажатии на кнопку или при на кнопки на джойстике
                 if game.buttonPlay:
                     game.buttons()
-                elif not game.buttonPlay:
+                elif not game.buttonPlay:  # Если кнопки нет на экране то играем, если есть то ожидаем нажатий
                     game.center += 80
                     sound_controller.swoosh()
         if not game.buttonPlay or game.market:
             game.update()
-            if game.volume > 20:
+            if game.volume > 20:  # Во время игры оцениваем звук
                 if not game.buttonPlay:
                     game.center += 5
         fpsClock.tick(90)
