@@ -24,15 +24,17 @@ programIcon = pygame.image.load('./favicon.ico')  # Изменяем иконк�
 pygame.display.set_icon(programIcon)  # Смена иконки окна игры
 button = pygame.image.load('sprites/i.png')  # Кнопка начала игры
 button = pygame.transform.scale(button, (120, 60))
-bg = pygame.image.load("sprites/background-day.png")  # Меняем фон
-bg = pygame.transform.scale(bg, (width, height))
 store = pygame.image.load('sprites/market.png')
 skins = [['yellowbird-downflap.png', 'yellowbird-midflap.png', 'yellowbird-upflap.png'],
          ['redbird-downflap.png', 'redbird-midflap.png', 'redbird-upflap.png'],
          ['bluebird-downflap.png', 'bluebird-midflap.png', 'bluebird-upflap.png']]
 pipes = ['pipe-green.png', 'pipe-red.png']
 score = ['0.png', '1.png', '2.png', '3.png', '4.png', '5.png', '6.png', '7.png', '8.png', '9.png']
-
+backgrounds = ['background-city.jpg', 'background-city-night.jpg', 'background-city-night-cyber.jpg',
+               'background-city-sun.jpg', 'background-day.png', 'background-night.jpg', 'background-night.png',
+               'background-night.png', 'sun.png']
+bg = pygame.image.load("sprites/" + str(backgrounds[random.randint(0, len(backgrounds))]))  # Меняем фон
+bg = pygame.transform.scale(bg, (width, height))
 
 class FlappyBird:
     def __init__(self):
@@ -170,8 +172,9 @@ class FlappyBird:
                     self.screen.blit(pygame.transform.scale(pygame.image.load('sprites/buttons/ok.png'), (100, 60)),
                                      (self.birdX - 50 + 17, self.birdY + 50))
                 elif self.points_count < 10:
-                    self.screen.blit(pygame.transform.scale(pygame.image.load('sprites/buttons/don,t buy.png'), (60, 60)),
-                                     (self.birdX - 30 + 17, self.birdY + 50))
+                    self.screen.blit(
+                        pygame.transform.scale(pygame.image.load('sprites/buttons/don,t buy.png'), (60, 60)),
+                        (self.birdX - 30 + 17, self.birdY + 50))
                 elif self.points_count >= 10:
                     self.screen.blit(
                         pygame.transform.scale(pygame.image.load('sprites/buttons/buy.png'), (60, 60)),
@@ -288,7 +291,7 @@ def sound_func():  # Функция для каллбека
         sd.sleep(-1)
 
 
-s = Thread(target=sound_func())  # Отдельный поток для параллельного измерения звука
+s = Thread(target=sound_func)  # Отдельный поток для параллельного измерения звука
 s.start()
 
 sound_controller = sound_controller()  # Инициализируем звуковой контроллер
