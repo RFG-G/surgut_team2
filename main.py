@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import sys
 import pygame
 import sounddevice as sd
 import numpy as np
@@ -33,14 +32,16 @@ score = ['0.png', '1.png', '2.png', '3.png', '4.png', '5.png', '6.png', '7.png',
 backgrounds = ['background-city.jpg', 'background-city-night.jpg', 'background-city-night-cyber.jpg',
                'background-city-sun.jpg', 'background-day.png', 'background-night.jpg', 'background-night.png',
                'background-night.png', 'sun.png']
-bg = pygame.image.load("sprites/" + str(backgrounds[random.randint(0, len(backgrounds))]))  # Меняем фон
+bg = pygame.image.load("sprites/" + str(backgrounds[random.randint(0, len(backgrounds) - 1)]))  # Меняем фон
 bg = pygame.transform.scale(bg, (width, height))
+
 
 class FlappyBird:
     def __init__(self):
         self.coin_image = pygame.transform.scale(pygame.image.load('sprites/money.png'), (20, 20))
         self.gameover = pygame.image.load('sprites/gameover.png')
         self.score_title = pygame.image.load('sprites/score_title.png')
+        self.score_price = pygame.image.load('sprites/score_price.png')
         self.coin = False
         self.coinX = 0
         self.coin_visible = 0
@@ -86,32 +87,32 @@ class FlappyBird:
 
     def buttons(self):  # Нажатия которые производят в игре
         try:
-            if self.buttonPlay and 376 // 2 - 60 < event.pos[0] < 376 // 2 + 60 and 700 // 2 - 30 < event.pos[
-                1] < 700 // 2 + 30 and not self.market:
+            if self.buttonPlay and 376 // 2 - 60 < event.pos[0] < 376 // 2 + 60 and \
+                    700 // 2 - 30 < event.pos[1] < 700 // 2 + 30 and not self.market:
                 self.buttonPlay = False
-            elif self.buttonPlay and width // 2 - 30 < event.pos[0] < width // 2 + 30 and height // 2 + 30 < event.pos[
-                1] < height // 2 + 90 and not self.market:
+            elif self.buttonPlay and width // 2 - 30 < event.pos[0] < width // 2 + 30 and \
+                    height // 2 + 30 < event.pos[1] < height // 2 + 90 and not self.market:
                 self.market = True
             elif self.market and self.birdX - 70 < event.pos[0] < self.birdX - 20 and self.birdY - 12 < event.pos[1] \
-                    < self.birdY + 38:
+                    < self.birdY + 38:  # Стрелка влево
                 self.selectedBird -= 1
                 if self.selectedBird == -1:
                     self.selectedBird = len(skins) - 1
                 self.load_bird()
             elif self.market and self.birdX + 56 < event.pos[0] < self.birdX + 106 and self.birdY - 12 < event.pos[1] \
-                    < self.birdY + 38:
+                    < self.birdY + 38:  # Стрелка вправо
                 self.selectedBird += 1
                 if self.selectedBird == len(skins):
                     self.selectedBird = 0
                 self.load_bird()
             elif self.market and self.birdX - 50 + 17 < event.pos[0] < self.birdX + 50 + 17 and \
-                    self.birdY + 50 < event.pos[1] < self.birdY + 110 and str(self.selectedBird) in self.skins:
+                    self.birdY + 50 < event.pos[1] < self.birdY + 110 and str(self.selectedBird + 1) in self.skins:
                 self.market = False
                 self.buttonPlay = False
             elif self.market and self.birdX - 30 + 17 < event.pos[0] < self.birdX + 30 + 17 and \
-                    self.birdY + 50 < event.pos[1] < self.birdY + 110:
+                    self.birdY + 50 < event.pos[1] < self.birdY + 110:  # Покупка
                 if self.points_count >= 10:
-                    self.skins.append(str(self.selectedBird))
+                    self.skins.append(str(self.selectedBird + 1))
                     self.points_count -= 10
             if not self.buttonPlay:
                 self.sound_controller.play()
@@ -127,7 +128,7 @@ class FlappyBird:
             self.load_bird()
             self.fillBackground()
             self.load_coin()
-            if not self.market:  # Если не в маркете то играем и меняем анимация полета
+            if not self.market:  # Если находимся не в маркете то играем и меняем анимация полета
                 self.birdY -= 0.03 * self.center
                 if self.center > 0:
                     self.position = 2
@@ -149,13 +150,14 @@ class FlappyBird:
                     self.coin = False
                 if self.birdY < 0 or self.birdY > 670 \
                         or (
-                        self.pipeX - 19 < self.birdX + 17 < self.pipeX + 26 and self.pipeYU < self.birdY < self.pipeYU + 750) \
-                        or (
-                        self.pipeX - 19 < self.birdX + 17 < self.pipeX + 26 and self.pipeYD < self.birdY + 24 < self.pipeYD + 750) \
-                        or (
-                        self.pipeX - 19 < self.birdX < self.pipeX + 26 and self.pipeYU < self.birdY < self.pipeYU + 750) \
-                        or (
-                        self.pipeX - 19 < self.birdX < self.pipeX + 26 and self.pipeYD < self.birdY < self.pipeYD + 750):  # Проигрыш
+                        self.pipeX - 19 < self.birdX + 17 < self.pipeX + 26 and self.pipeYU < self.birdY < self.pipeYU
+                        + 750) or (
+                        self.pipeX - 19 < self.birdX + 17 < self.pipeX + 26 and self.pipeYD < self.birdY + 24 <
+                        self.pipeYD + 750) or (
+                        self.pipeX - 19 < self.birdX < self.pipeX + 26 and
+                        self.pipeYU < self.birdY < self.pipeYU + 750) or (
+                        self.pipeX - 19 < self.birdX < self.pipeX + 26 and
+                        self.pipeYD < self.birdY < self.pipeYD + 750):  # Проигрыш
                     self.sound_controller.fail()
                     self.fail()
                 self.score()  # Отрисовка очков и кол-ва монеток
@@ -168,7 +170,9 @@ class FlappyBird:
                 self.screen.blit(self.pointer_right, (self.birdX + 56, self.birdY - 12))
                 self.screen.blit(pygame.transform.scale(self.score_title, (270, 130)),
                                  (self.birdX - 120, self.birdY - 200))
-                if str(self.selectedBird) in self.skins:
+                self.screen.blit(pygame.transform.scale(self.score_price, (60, 60)),
+                                 (self.birdX - 10, self.birdY - 70))
+                if str(self.selectedBird + 1) in self.skins:
                     self.screen.blit(pygame.transform.scale(pygame.image.load('sprites/buttons/ok.png'), (100, 60)),
                                      (self.birdX - 50 + 17, self.birdY + 50))
                 elif self.points_count < 10:
@@ -235,7 +239,7 @@ class FlappyBird:
             self.x_score += score_image.get_size()[0]
             self.screen.blit(score_image, (self.x_score, 0))
 
-    def points(self):  # Моенты игрока
+    def points(self):  # Монеты игрока
         self.x_points = 0
         for i in range(len(str(self.points_count))):
             points_image = pygame.image.load('sprites/points/' + score[int(str(self.points_count)[i])])
@@ -291,8 +295,11 @@ def sound_func():  # Функция для каллбека
         sd.sleep(-1)
 
 
-s = Thread(target=sound_func)  # Отдельный поток для параллельного измерения звука
-s.start()
+try:
+    s = Thread(target=sound_func) # Отдельный поток для параллельного измерения звука
+    s.start()
+except Exception:  # Если нет микрофона(нет исключения для ошибки внутри библиотеки по этому Exception)
+    print('Микрофон не подключен')
 
 sound_controller = sound_controller()  # Инициализируем звуковой контроллер
 while True:
@@ -311,7 +318,7 @@ while True:
                     sound_controller.swoosh()
         if not game.buttonPlay or game.market:
             game.update()
-            if game.volume > 20:  # Во время игры оцениваем звук
+            if game.volume > 40:  # Во время игры оцениваем звук
                 if not game.buttonPlay:
                     game.center += 5
         fpsClock.tick(90)
