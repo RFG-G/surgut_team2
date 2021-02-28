@@ -8,6 +8,7 @@ from sound_controller import sound_controller
 import os.path
 
 pygame.init()
+pygame.display.set_caption('Easy bird')
 try:
     my_joystick = pygame.joystick.Joystick(0)
     my_joystick.init()
@@ -42,6 +43,7 @@ class FlappyBird:
         self.gameover = pygame.image.load('sprites/gameover.png')
         self.score_title = pygame.image.load('sprites/score_title.png')
         self.score_price = pygame.image.load('sprites/score_price.png')
+        self.just_do_it = pygame.image.load('sprites/message.png')
         self.coin = False
         self.coinX = 0
         self.coin_visible = 0
@@ -62,6 +64,7 @@ class FlappyBird:
         self.load_pipe()
         self.load_button()
         self.load_market()
+        self.screen.blit(self.just_do_it, (376 // 2 - 94, 100))
         self.click = 0  # Счетчик нажатий
         self.center = -1
 
@@ -80,8 +83,8 @@ class FlappyBird:
         else:
             with open('config.txt', 'w') as config:
                 config.write('0\n')
-                config.write('skins:0')
-                self.skins = ['0']
+                config.write('skins:1')
+                self.skins = ['1']
                 self.points_count = 0
                 config.close()
 
@@ -295,11 +298,9 @@ def sound_func():  # Функция для каллбека
         sd.sleep(-1)
 
 
-try:
-    s = Thread(target=sound_func) # Отдельный поток для параллельного измерения звука
-    s.start()
-except Exception:  # Если нет микрофона(нет исключения для ошибки внутри библиотеки по этому Exception)
-    print('Микрофон не подключен')
+s = Thread(target=sound_func)  # Отдельный поток для параллельного измерения звука
+s.start()
+print('Микрофон не подключен')
 
 sound_controller = sound_controller()  # Инициализируем звуковой контроллер
 while True:
